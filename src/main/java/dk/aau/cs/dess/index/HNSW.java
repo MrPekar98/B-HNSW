@@ -8,6 +8,7 @@ import dk.aau.cs.dess.search.Result;
 import dk.aau.cs.dess.search.ResultSet;
 import dk.aau.cs.dess.structurs.Vector;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,17 @@ public class HNSW implements NearestNeighbor
         this.capacity = capacity;
         this.hnsw = new Index(SpaceName.COSINE, dimension);
         this.hnsw.initialize(capacity, m, efConstruction, 100);
+    }
+
+    public HNSW(Path diskPath, int dimension, int capacity)
+    {
+        this.hnsw = new Index(SpaceName.COSINE, dimension);
+        load(diskPath, capacity);
+
+        this.m = this.hnsw.getM();
+        this.ef = this.hnsw.getEf();
+        this.efConstruction = this.hnsw.getEfConstruction();
+        this.capacity = capacity;
     }
 
     public int getCapacity()
@@ -151,5 +163,18 @@ public class HNSW implements NearestNeighbor
         {
             this.hnsw.clear();
         }
+    }
+
+    public void save(Path path)
+    {
+        synchronized (this.lock)
+        {
+            this.hnsw.save(path);
+        }
+    }
+
+    private void load(Path path, int capacity)
+    {
+        this.hnsw.load(path, capacity);
     }
 }
