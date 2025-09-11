@@ -3,6 +3,7 @@ package dk.aau.cs.dess.index;
 import com.stepstone.search.hnswlib.jna.Index;
 import com.stepstone.search.hnswlib.jna.QueryTuple;
 import dk.aau.cs.dess.search.*;
+import dk.aau.cs.dess.structures.Pair;
 import dk.aau.cs.dess.structures.Vector;
 
 import java.nio.file.Path;
@@ -38,7 +39,7 @@ public class BHNSW extends BaseHNSW implements NearestNeighbor<VectorBatch, Map<
     @Override
     public Map<Vector<? extends Number>, ResultSet> search(VectorBatch query, int topK)
     {
-        Map<Vector<? extends Number>, VectorBatch> clusters = this.cluster.cluster();
+        Map<Vector<? extends Number>, VectorBatch> clusters = this.cluster.cluster(query);
         Map<Vector<? extends Number>, ResultSet> results = new HashMap<>(clusters.size());
 
         for (var entry : clusters.entrySet())
@@ -50,7 +51,7 @@ public class BHNSW extends BaseHNSW implements NearestNeighbor<VectorBatch, Map<
             Index.normalize(primitiveCentroid);
 
             QueryTuple centroidQuery = super.hnsw.knnNormalizedQuery(primitiveCentroid, topK * 2);
-            List<Vector<Float>> centroidResults = new ArrayList<>(topK * 2);
+            List<Pair<Integer, Vector<Float>>> centroidResults = new ArrayList<>(topK * 2);
 
             for (int id : centroidQuery.getIds())
             {
@@ -59,7 +60,7 @@ public class BHNSW extends BaseHNSW implements NearestNeighbor<VectorBatch, Map<
                 if (primitiveResult.isPresent())
                 {
                     Vector<Float> result = new Vector<>(List.of(primitiveResult.get()));
-                    centroidResults.add(result);
+                    centroidResults.add(new Pair<>(id, result));
                 }
             }
 
@@ -67,7 +68,7 @@ public class BHNSW extends BaseHNSW implements NearestNeighbor<VectorBatch, Map<
             {
                 Vector<? extends Number> queryVector = batchIterator.next();
                 ResultSet resultSet = new ResultSet(topK);
-                centroidResults.forEach(vector -> resultSet.addResult(new Result(1, vector.cosineSimilarity(queryVector))));
+                centroidResults.forEach(pair -> resultSet.addResult(new Result(pair.first(), pair.second().cosineSimilarity(queryVector))));
                 results.put(queryVector, resultSet);
             }
         }

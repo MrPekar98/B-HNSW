@@ -34,4 +34,9 @@ public abstract class BaseBatch<T> implements Batch<T>
     {
         return this.items.iterator();
     }
+
+    public Set<T> getItems()
+    {
+        return this.items;
+    }
 }
