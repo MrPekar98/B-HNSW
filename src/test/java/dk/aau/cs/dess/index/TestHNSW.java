@@ -1,6 +1,6 @@
-package dk.aau.cs.dess.search;
+package dk.aau.cs.dess.index;
 
-import dk.aau.cs.dess.index.HNSW;
+import dk.aau.cs.dess.search.ResultSet;
 import dk.aau.cs.dess.structures.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -102,7 +102,7 @@ public class TestHNSW
         this.hnsw.save(path);
         this.hnsw.clear();
 
-        HNSW copy = new HNSW(path, 1, 5, 5);
+        BaseHNSW copy = new HNSW(path, 1, 5, 5);
         path.toFile().delete();
         assertEquals(1, copy.getEf());
         assertEquals(5, copy.getEfConstruction());

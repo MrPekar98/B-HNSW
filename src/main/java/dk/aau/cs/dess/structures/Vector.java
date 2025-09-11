@@ -80,6 +80,21 @@ public final class Vector<V extends Number> implements Comparable<Vector<V>>
     }
 
     /**
+     * Retrieves a specific value at the given dimensional level
+     * @param dimension Dimensional level to retrieve value from
+     * @return Value at given dimensional level
+     */
+    public V get(int dimension)
+    {
+        if (dimension < 0 || dimension >= vector.size())
+        {
+            throw new IndexOutOfBoundsException("Index " + dimension + " is out of bounds for limit " + this.vector.size());
+        }
+
+        return this.vector.get(dimension);
+    }
+
+    /**
      * Dimension of the vector
      * @return Dimension
      */
