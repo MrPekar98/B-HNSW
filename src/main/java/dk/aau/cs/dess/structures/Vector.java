@@ -1,4 +1,4 @@
-package dk.aau.cs.dess.structurs;
+package dk.aau.cs.dess.structures;
 
 import java.util.ArrayList;
 import java.util.Collection;

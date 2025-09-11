@@ -16,7 +16,7 @@ public class ResultSet
     public ResultSet(int topK, Collection<Result> results)
     {
         this(topK);
-        resultSet.addAll(results);
+        this.resultSet.addAll(results);
     }
 
     public void addResult(Result result)

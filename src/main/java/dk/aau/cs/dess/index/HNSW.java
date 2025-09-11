@@ -6,7 +6,7 @@ import com.stepstone.search.hnswlib.jna.SpaceName;
 import dk.aau.cs.dess.search.NearestNeighbor;
 import dk.aau.cs.dess.search.Result;
 import dk.aau.cs.dess.search.ResultSet;
-import dk.aau.cs.dess.structurs.Vector;
+import dk.aau.cs.dess.structures.Vector;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,14 +32,15 @@ public class HNSW implements NearestNeighbor
         this.hnsw.initialize(capacity, m, efConstruction, 100);
     }
 
-    public HNSW(Path diskPath, int dimension, int capacity)
+    public HNSW(Path diskPath, int ef, int dimension, int capacity)
     {
         this.hnsw = new Index(SpaceName.COSINE, dimension);
+        this.hnsw.initialize();
         load(diskPath, capacity);
 
         this.m = this.hnsw.getM();
-        this.ef = this.hnsw.getEf();
         this.efConstruction = this.hnsw.getEfConstruction();
+        this.ef = ef;
         this.capacity = capacity;
     }
 
@@ -51,6 +52,7 @@ public class HNSW implements NearestNeighbor
     public void setEf(int ef)
     {
         this.ef = ef;
+        this.hnsw.setEf(ef);
     }
 
     public int getEf()
@@ -82,7 +84,7 @@ public class HNSW implements NearestNeighbor
         Index.normalize(primitiveInput);
 
         QueryTuple query = this.hnsw.knnNormalizedQuery(primitiveInput, topK);
-        int order = 1;
+        double order = 1;
 
         for (int id : query.getIds())
         {
@@ -122,6 +124,7 @@ public class HNSW implements NearestNeighbor
         synchronized (this.lock)
         {
             this.hnsw.markDeleted(key);
+            this.size--;
         }
     }
 
@@ -135,12 +138,14 @@ public class HNSW implements NearestNeighbor
     }
 
     /**
-     * This is not supported in HNSW
+     * Existence check of key
+     * @param key Key of node to check for existence for
+     * @return Whether a node with the given ID exists
      */
     @Override
     public boolean exists(Integer key)
     {
-        throw new UnsupportedOperationException("Not supported in HNSW");
+        return this.hnsw.hasId(key);
     }
 
     /**
@@ -162,6 +167,7 @@ public class HNSW implements NearestNeighbor
         synchronized (this.lock)
         {
             this.hnsw.clear();
+            this.size = 0;
         }
     }
 
