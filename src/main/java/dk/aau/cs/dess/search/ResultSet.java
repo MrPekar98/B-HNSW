@@ -4,13 +4,15 @@ import java.util.*;
 
 public class ResultSet
 {
-    private final Queue<Result> resultSet;
+    //private final Queue<Result> resultSet;
+    private final List<Result> resultSet;
     private final int topK;
 
     public ResultSet(int topK)
     {
         this.topK = topK;
-        this.resultSet = new PriorityQueue<>(topK);
+        //this.resultSet = new PriorityQueue<>(topK);
+        this.resultSet = new ArrayList<>(topK);
     }
 
     public ResultSet(int topK, Collection<Result> results)
@@ -34,6 +36,7 @@ public class ResultSet
     {
         List<Result> results = new ArrayList<>(this.resultSet.size());
         results.addAll(this.resultSet);
+        Collections.sort(results);
         return results.subList(0, this.topK);
     }
 
