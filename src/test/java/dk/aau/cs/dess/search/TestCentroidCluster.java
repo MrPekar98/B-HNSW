@@ -4,7 +4,10 @@ import dk.aau.cs.dess.structures.Vector;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.*;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class TestCentroidCluster
 {
@@ -24,12 +27,37 @@ public class TestCentroidCluster
     @Test
     public void testCluster()
     {
+        VectorBatch batch = new VectorBatch(List.of(this.v1, this.v2, this.v3, this.v4, this.v5), this.v1.dimension());
+        var clusters = this.cluster.cluster(batch);
+        assertEquals(3, clusters.size());
 
+        for (Vector<Float> vector : List.of(this.v1, this.v2, this.v3, this.v4, this.v5))
+        {
+            boolean found = false;
+
+            for (Map.Entry<Vector<? extends Number>, VectorBatch> entry : clusters.entrySet())
+            {
+                if (entry.getValue().getItems().contains(vector))
+                {
+                    found = true;
+                }
+            }
+
+            assertTrue(found);
+        }
+
+        for (Map.Entry<Vector<? extends Number>, VectorBatch> entry : clusters.entrySet())
+        {
+            assertEquals(entry.getKey(), entry.getValue().centroid());
+        }
     }
 
     @Test
     public void testDeCluster()
     {
-
+        VectorBatch batch = new VectorBatch(List.of(this.v1, this.v2, this.v3, this.v4, this.v5), this.v1.dimension());
+        this.cluster.cluster(batch);
+        VectorBatch deClusteredBatch = this.cluster.deCluster();
+        assertEquals(batch, deClusteredBatch);
     }
 }

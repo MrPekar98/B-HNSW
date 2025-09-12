@@ -59,7 +59,15 @@ public class BHNSW extends BaseHNSW implements NearestNeighbor<VectorBatch, Map<
 
                 if (primitiveResult.isPresent())
                 {
-                    Vector<Float> result = new Vector<>(List.of(primitiveResult.get()));
+                    float[] primitiveResultArray = primitiveResult.get();
+                    List<Float> resultList = new ArrayList<>(primitiveResultArray.length);
+
+                    for (float val : primitiveResultArray)
+                    {
+                        resultList.add(val);
+                    }
+
+                    Vector<Float> result = new Vector<>(resultList);
                     centroidResults.add(new Pair<>(id, result));
                 }
             }

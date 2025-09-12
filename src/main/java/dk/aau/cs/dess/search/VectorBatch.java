@@ -46,16 +46,14 @@ public class VectorBatch extends BaseBatch<Vector<? extends Number>>
 
     private List<Float> aggregate(BiFunction<Float, Float, Float> function, float initialValue)
     {
-        List<Float> aggregated = new ArrayList<>(Collections.nCopies(size(), initialValue));
-        Iterator<Vector<? extends Number>> iterator = iterator();
+        List<Float> aggregated = new ArrayList<>(Collections.nCopies(this.dimension, initialValue));
 
-        while (iterator.hasNext())
+        for (Vector<? extends Number> vector : this)
         {
-            Vector<? extends Number> vector = iterator.next();
-
             for (int dimension = 0; dimension < this.dimension; dimension++)
             {
-                aggregated.set(dimension, function.apply(aggregated.get(dimension), vector.get(dimension).floatValue()));
+                float updatedValue = function.apply(aggregated.get(dimension), vector.get(dimension).floatValue());
+                aggregated.set(dimension, updatedValue);
             }
         }
 
@@ -106,5 +104,16 @@ public class VectorBatch extends BaseBatch<Vector<? extends Number>>
     {
         List<Float> min = aggregate(Math::min, Float.MAX_VALUE);
         return new Vector<>(min);
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof VectorBatch other))
+        {
+            return false;
+        }
+
+        return this.dimension == other.dimension && super.equals(o);
     }
 }

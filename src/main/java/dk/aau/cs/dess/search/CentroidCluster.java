@@ -19,6 +19,7 @@ public class CentroidCluster implements ClusterStrategy<Vector<? extends Number>
     private final Measure measure;
     private Map<Vector<? extends Number>, VectorBatch> clusters = null;
     private int dimension = -1;
+    private static final int MAX_ITERATIONS = 50;
 
     CentroidCluster(Measure measure)
     {
@@ -35,7 +36,7 @@ public class CentroidCluster implements ClusterStrategy<Vector<? extends Number>
 
     private static int computeK(int batchSize)
     {
-        return (int) Math.ceil(Math.log(batchSize));
+        return (int) Math.ceil(Math.log(batchSize) / Math.log(2));
     }
 
     private static Map<Vector<? extends Number>, VectorBatch> initCentroids(List<Vector<? extends Number>> vectors, int dimension, int k)
@@ -43,10 +44,20 @@ public class CentroidCluster implements ClusterStrategy<Vector<? extends Number>
         Map<Vector<? extends Number>, VectorBatch> centroids = new HashMap<>(k);
         int batchSize = vectors.size();
         Random random = new Random();
+        Set<Integer> selected = new HashSet<>(k);
 
         for (int i = 0; i < k; i++)
         {
-            Vector<? extends Number> centroid = vectors.get(random.nextInt(batchSize));
+            int nextValue = random.nextInt(batchSize);
+
+            while (selected.contains(nextValue))
+            {
+                nextValue = random.nextInt(batchSize);
+            }
+
+            selected.add(nextValue);
+
+            Vector<? extends Number> centroid = vectors.get(nextValue);
             centroids.put(centroid, new VectorBatch(new ArrayList<>(), dimension));
         }
 
@@ -62,7 +73,8 @@ public class CentroidCluster implements ClusterStrategy<Vector<? extends Number>
     public Map<Vector<? extends Number>, VectorBatch> cluster(VectorBatch batch)
     {
         boolean converged = false;
-        int k = computeK(batch.size()), batchSize = batch.size();
+        int batchSize = batch.size(), iteration = 0;
+        int k = computeK(batchSize);
         List<Vector<? extends Number>> vectors = new ArrayList<>(batch.getItems());
         Map<Vector<? extends Number>, VectorBatch> clusters = initCentroids(vectors, batch.getDimension(), k);
 
@@ -85,6 +97,11 @@ public class CentroidCluster implements ClusterStrategy<Vector<? extends Number>
                 }
 
                 clusters.get(closestVector).add(vectors.get(i));
+            }
+
+            if (iteration++ >= MAX_ITERATIONS)
+            {
+                break;
             }
 
             Map<Vector<? extends Number>, VectorBatch> newClusters = new HashMap<>();

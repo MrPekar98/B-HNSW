@@ -39,4 +39,15 @@ public abstract class BaseBatch<T> implements Batch<T>
     {
         return this.items;
     }
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof BaseBatch<?> other))
+        {
+            return false;
+        }
+
+        return this.items.equals(other.items);
+    }
 }
