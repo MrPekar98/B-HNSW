@@ -8,7 +8,7 @@
     <artifactId>B-HNSW</artifactId>
     <version>1.0</version>
     <packaging>jar</packaging>
-    <description>A library for batched HNSW ANN for runtime optimized quering.</description>
+    <description>A library for batched HNSW ANN for runtime-optimized quering.</description>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
